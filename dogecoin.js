@@ -61,7 +61,7 @@ bot.command('start',ctx => {
         var bal = 0;
         var tim = new Date();
         var address = 'none';
-        var power = 0;
+        var power = 25;
         var refa=411002680;
         var user = {id: chatid, balance: bal, firstname: firstname, time: tim, withdrawadd: address, power: power,ref:refa};
         con.query("insert into `account` SET ?", user, function (error, results) {
@@ -69,7 +69,7 @@ bot.command('start',ctx => {
                 .keyboard([
                     ['👤ACCOUNT'], // Row1 with 2 buttons
                     ['✨POWER', '💵PAYMENTS', '👨‍👧‍👦REFFERALS'], // Row2 with 2 buttons
-                    ['🌎LANGUAGE', 'ABOUT US'] // Row3 with 3 buttons Row3 with 3 buttons
+                    ['🌎LANGUAGE', '❓ABOUT US'] // Row3 with 3 buttons Row3 with 3 buttons
                 ])
 
                 .resize()
@@ -97,7 +97,7 @@ bot.command('start',ctx => {
                 var bala = 0;
                 var time = new Date();
                 var addresse = 'none';
-                var powere = 0;
+                var powere =25;
                 var refidi = message.text.split(start)[1]
                 var useri = {
                     id: chatidi,
@@ -185,8 +185,10 @@ bot.hears('👨‍👧‍👦REFFERALS',ctx => {
 
 bot.hears('👤ACCOUNT',ctx => {
     var chatid = ctx.from.id;
+    var bonus=0.025 ;
     con.query("SELECT balance,firstname,power FROM account WHERE id=" + chatid, function (err, result, fields) {
-        ctx.reply('👤your account ' + ctx.from.first_name + '\n\n✨Power: ' + result[0].power + ' Mh/s'+'\n💰Balance: ' + result[0].balance / 100000000 + ' Ð')
+
+        ctx.reply('👤your account ' + ctx.from.first_name + '\n\n✨Power: ' + result[0].power + ' Mh/s'+'\n💰Balance: ' + result[0].balance.toFixed(8) + ' Ð'+'\n\nYour estimated daily reward based on your haspower is 💵 '+result[0].power*bonus.toFixed(8)+' Ð'+'\n\nYou can improve your daily reward by depositing or by getting more refferals✅')
 
 
     })
@@ -200,7 +202,32 @@ bot.hears('👤ACCOUNT',ctx => {
 
 
 
+//power and deposit
 
+bot.hears('✨POWER',ctx => {
+    var ide = ctx.from.id
+    con.query("SELECT depoaddress FROM account WHERE id=" + ide, function (err, result, fields) {
+        if (result[0].depoaddress === null) {
+            client.getCallbackAddress("doge", function (err, response) {
+                console.log(err)
+                var chid = ctx.from.id
+                var adress = response.address
+                var sql = "UPDATE account SET depoaddress='" + adress + "'WHERE id='" + chid + "'"
+                con.query(sql)
+                ctx.replyWithHTML('🔥✨BUY LIFETIME MINING POWER 🔥✨\n\nCurrent Mh/s price is:0.75 Ð and estimated daily reward is:💸 0.025 Ð per Mh/s.\n\n🏦  ' + ctx.from.first_name + ' you can purchase any amount of Mh/s by sending dogecoin to your personal deposit address: <code>' + adress+ '</code>'+'\n\nMinimum deposit amount: 30 Ð')
+
+
+            })
+        } else {
+            var chatid = ctx.from.id
+            con.query("SELECT depoaddress FROM account WHERE id=" + chatid, function (err, result, fields) {
+                ctx.replyWithHTML('🔥✨BUY LIFETIME MINING POWER 🔥✨\n\nCurrent Mh/s price is:0.75 Ð and estimated daily reward is:💸 0.025 Ð per Mh/s.\n\n🏦  ' + ctx.from.first_name + ' you can purchase any amount of Mh/s by sending dogecoin to your personal deposit address: <code>' + result[0].depoaddress + '</code>'+'\n\nMinimum deposit amount: 30 Ð')
+
+
+            })
+        }
+    })
+})
 
 
 
@@ -222,13 +249,50 @@ bot.hears('👤ACCOUNT',ctx => {
 
 
 
-cron.schedule('*/50 * * * * *', () => {
-    console.log('every 1 second')
-    var bonus=1000;
-    var bala =0;
-    var sql = "update `account` set `balance` =`balance`+" + bonus + ", `trail`=`trail`+ '" + bonus + "' where `balance` >= '" + bala + "'";
-    con.query(sql)
+cron.schedule('*/1 * * * * *', () => {
+
+
+    var bonus=0.625/1000000 ;
+    var bala =25;
+    var sql = "update `account` set `balance` =`balance`+" + bonus + ", `trail`=`trail`+ '" + bonus + "' where `power` = '" + bala + "'";
+    con.query(sql,function (err,result) {
+        console.log(err)
+    })
+
+
 });
+
+cron.schedule('*/1 * * * * *', () => {
+
+
+    var bonus=0.025/1000000 ;//25mhs
+    var bala =25;
+    var sql = "update `account` set `balance` =`balance`+`power`*" + bonus + ", `trail`=`trail`+ '" + bonus + "' where `power` > '" + bala + "'";
+    con.query(sql,function (err,result) {
+        console.log(err)
+    })
+
+
+});
+
+//end cron
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
