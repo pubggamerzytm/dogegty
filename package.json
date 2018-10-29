@@ -17,6 +17,9 @@
     "coinbase": "^2.0.8",
     "wallet-address-validator":"^0.2.1",
     "coinpayments": "^1.1.8",
-    "node-cron": "^2.0.3"
+    "node-cron": "^2.0.3",
+    "sochain": "^1.0.1",
+    "dogecoin-regex":"^1.0.3",
+    "lodash": "^4.17.11"
   }
 }

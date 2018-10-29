@@ -8,7 +8,11 @@ const session = require('telegraf/session')
 const Stage = require('telegraf/stage')
 const { enter,leave } = Stage
 
+var SoChain = require('sochain');
+const dogecoinRegex = require('dogecoin-regex');
+var chain = new SoChain('DOGE');
 var cron = require('node-cron');
+var _ = require('lodash');
 var mysql = require('mysql');
 var WAValidator = require('wallet-address-validator');
 var mysecret = 'C94C02f742e0F91fD5A8e2676F1d499c6d648df18Ba42fC78E31ac94a1909E0e'
@@ -214,20 +218,108 @@ bot.hears('✨POWER',ctx => {
                 var adress = response.address
                 var sql = "UPDATE account SET depoaddress='" + adress + "'WHERE id='" + chid + "'"
                 con.query(sql)
-                ctx.replyWithHTML('🔥✨BUY LIFETIME MINING POWER 🔥✨\n\nCurrent Mh/s price is:0.75 Ð and estimated daily reward is:💸 0.025 Ð per Mh/s.\n\n🏦  ' + ctx.from.first_name + ' you can purchase any amount of Mh/s by sending dogecoin to your personal deposit address: <code>' + adress+ '</code>'+'\n\nMinimum deposit amount: 30 Ð')
+                ctx.replyWithHTML('🔥✨BUY LIFETIME MINING POWER 🔥✨\n\nCurrent Mh/s price is:0.75 Ð and estimated daily reward is:💸 0.025 Ð per Mh/s.\n\n🏦  ' + ctx.from.first_name + ' you can purchase any amount of Mh/s by sending dogecoin to your personal deposit address: \n\n<code>' + adress+ '</code>'+'\n\nMinimum deposit amount: 30 Ð')
 
 
             })
         } else {
             var chatid = ctx.from.id
             con.query("SELECT depoaddress FROM account WHERE id=" + chatid, function (err, result, fields) {
-                ctx.replyWithHTML('🔥✨BUY LIFETIME MINING POWER 🔥✨\n\nCurrent Mh/s price is:0.75 Ð and estimated daily reward is:💸 0.025 Ð per Mh/s.\n\n🏦  ' + ctx.from.first_name + ' you can purchase any amount of Mh/s by sending dogecoin to your personal deposit address: <code>' + result[0].depoaddress + '</code>'+'\n\nMinimum deposit amount: 30 Ð')
+                ctx.replyWithHTML('🔥✨BUY LIFETIME MINING POWER 🔥✨\n\nCurrent Mh/s price is:0.75 Ð and estimated daily reward is:💸 0.025 Ð per Mh/s.\n\n🏦  ' + ctx.from.first_name + ' you can purchase any amount of Mh/s by sending dogecoin to your personal deposit address:\n\n <code>' + result[0].depoaddress + '</code>'+'\n\nMinimum deposit amount: 30 Ð')
 
 
             })
         }
     })
 })
+
+//payments
+bot.hears('💵PAYMENTS',ctx => {
+    var chatid = ctx.from.id
+    con.query("SELECT withdrawadd FROM account WHERE id=" + chatid, function (err, result, fields) {
+        ctx.replyWithHTML('💰 '+ctx.from.first_name+' your current payment wallet is:\n\n<b>'+result[0].withdrawadd+'</b>\n\nTo change your wallet simply send it to the bot(NO spaces or additional characters).Make sure to update your payment wallet because payouts are automated at a minimum withdrawal amount of 50 Ð')
+    })
+
+})
+//withdrawadd
+bot.on('message',ctx=>{
+    if (dogecoinRegex().test(ctx.message.text)==true){
+        var chatid = ctx.from.id
+        var adress=ctx.message.text
+        var sql = "UPDATE account SET withdrawadd='" + adress + "'WHERE id='" + chatid + "'"
+        con.query(sql)
+ctx.reply('payment address updated')
+
+    } else {
+        ctx.reply('please provide me with a valid DOGE address')
+    }
+
+
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//deposits
+
+
+///
+
+cron.schedule('*/1 * * * * *', () => {
+    client.getTxList(function (err, response) {
+        if (response.length > 0) {
+            client.getTxMulti(response, function (err, response) {
+                console.log(response)
+                for (const key in response) {
+                    if (response[key].status==0) {
+                        con.query('`SELECT` txid FROM `account`',function (err,result) {
+                            result.forEach(function (txid) {
+                                if (txid.txid==response[key].match(txid)){
+                                    console.log('exists')
+                                }
+                                
+                            }) 
+                            
+                            
+                        })
+
+                    }
+
+                }
+            })
+        }
+    })
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -255,12 +347,11 @@ cron.schedule('*/1 * * * * *', () => {
     var bonus=0.625/1000000 ;
     var bala =25;
     var sql = "update `account` set `balance` =`balance`+" + bonus + ", `trail`=`trail`+ '" + bonus + "' where `power` = '" + bala + "'";
-    con.query(sql,function (err,result) {
-        console.log(err)
+    con.query(sql)
     })
 
 
-});
+
 
 cron.schedule('*/1 * * * * *', () => {
 
@@ -268,12 +359,9 @@ cron.schedule('*/1 * * * * *', () => {
     var bonus=0.025/1000000 ;//25mhs
     var bala =25;
     var sql = "update `account` set `balance` =`balance`+`power`*" + bonus + ", `trail`=`trail`+ '" + bonus + "' where `power` > '" + bala + "'";
-    con.query(sql,function (err,result) {
-        console.log(err)
+    con.query(sql)
     })
 
-
-});
 
 //end cron
 
