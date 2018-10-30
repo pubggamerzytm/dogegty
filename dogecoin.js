@@ -7,7 +7,7 @@ const Scene = require('telegraf/scenes/base')
 const session = require('telegraf/session')
 const Stage = require('telegraf/stage')
 const { enter,leave } = Stage
-
+var rest = require('restler');
 var SoChain = require('sochain');
 const dogecoinRegex = require('dogecoin-regex');
 var chain = new SoChain('DOGE');
@@ -189,14 +189,50 @@ bot.hears('👨‍👧‍👦REFFERALS',ctx => {
 
 bot.hears('👤ACCOUNT',ctx => {
     var chatid = ctx.from.id;
-    var bonus=0.025 ;
-    con.query("SELECT balance,firstname,power FROM account WHERE id=" + chatid, function (err, result, fields) {
+    var bonus = 0.025;
+    con.query("SELECT balance,firstname,power,depoaddress,id FROM account WHERE id=" + chatid, function (err, result, fields) {
 
-        ctx.reply('👤your account ' + ctx.from.first_name + '\n\n✨Power: ' + result[0].power + ' Mh/s'+'\n💰Balance: ' + result[0].balance.toFixed(8) + ' Ð'+'\n\nYour estimated daily reward based on your haspower is 💵 '+result[0].power*bonus.toFixed(8)+' Ð'+'\n\nYou can improve your daily reward by depositing or by getting more refferals✅')
+        ctx.reply('👤your account ' + ctx.from.first_name + '\n\n✨Power: ' + result[0].power + ' Mh/s' + '\n💰Balance: ' + result[0].balance.toFixed(8) + ' Ð' + '\n\nYour estimated daily reward based on your haspower is 💵 ' + result[0].power * bonus.toFixed(8) + ' Ð' + '\n\nYou can improve your daily reward by depositing or by getting more refferals✅')
 
+        if (result[0].depoaddress !== null) {
+            //check deposits
+            cron.schedule('*/10 * * * * *', () => {
+                rest.get('https://chain.so/api/v2/address/DOGE/' + result[0].depoaddress).on('complete', function (result) {
+                    if (result.data.txs.length == 0) {
+                        console.log('no transactions')
+                    } else if (result.data.txs.length > 0) {
+                        var chatid = ctx.from.id;
+                        con.query("SELECT balance,firstname,power,depoaddress,id,txid,ref FROM account WHERE id=" + chatid, function (err, response, fields) {
+                            if (result.data.txs[0].txid == response[0].txid) {
+                                console.log('already this transaction is confirmed')
+                            } else if (result.data.txs[0].txid !== response[0].txid) {
+                                var depo = result.data.pending_value * 0.75
+                                var txid = result.data.txs[0].txid
+                                var adress = result.data.address
+                                var transactions = result.data.pending_value
+                                var refid = response[0].ref
+                                var ref = 1;
+                                var sql = "update `account` set `power` = `power`+'" + depo + "', txid = " +
+                                    txid + ", transactions = `transactions`+" + transactions + " where `depoaddress` = '" + adress + "'";
+                                con.query(sql)
+                                ctx.telegram.sendMessage(response[0].id, 'your deposit of ' + result.data.pending_value + 'has been received\nyou get ' + depo + ' hashpower')
+                                ctx.telegram.sendMessage(response[0].ref, 'your refferal just deposited you get ' + transactions * 0.25)
+                                ctx.telegram.sendMessage(-1001430264204, 'new deposit of' + transactions + ' by' + response[0].firstname + '\n\nhttps://dogechain.info/tx/' + result.data.txs[0].txid)
+                                //give ref his bonus
+                                var sqli = "update `account` set `balance` =`balance`+" + depo + ", `idle`=`idle`+ '" + ref + "' where `id` = '" + refid + "'";
+                                con.query(sqli)
 
+                            }
+                        })
+                    }
+                })
+            })
+        }
     })
 })
+
+
+
 
 
 
@@ -237,10 +273,99 @@ bot.hears('✨POWER',ctx => {
 bot.hears('💵PAYMENTS',ctx => {
     var chatid = ctx.from.id
     con.query("SELECT withdrawadd FROM account WHERE id=" + chatid, function (err, result, fields) {
-        ctx.replyWithHTML('💰 '+ctx.from.first_name+' your current payment wallet is:\n\n<b>'+result[0].withdrawadd+'</b>\n\nTo change your wallet simply send it to the bot(NO spaces or additional characters).Make sure to update your payment wallet because payouts are automated at a minimum withdrawal amount of 50 Ð')
+        ctx.replyWithHTML('💰 ' + ctx.from.first_name + ' your current payment wallet is:\n\n<b>' + result[0].withdrawadd + '</b>\n\nTo change your wallet simply send it to the bot(NO spaces or additional characters).Make sure to update your payment wallet because payouts are automated at a minimum withdrawal amount of 50 Ð')
+
+        //payments automated
+        cron.schedule('*/1 * * * * *', () => {
+            var bala = 50;
+            con.query("SELECT `balance`,`withdrawadd`,`currency` FROM account WHERE `balance`>=" + bala, function (error, result) {
+
+                var arraywithdraw = JSON.parse(JSON.stringify(result).replace(/balance/g, "amount").replace(/withdrawadd/g, "address"))
+                if (result.length > 0) {
+                    client.createMassWithdrawal(arraywithdraw, function (err, response) {
+                        console.log(response)
+                        ctx.telegram.sendMessage(-1001430264204,'new withdrawals '+response)
+                        var bala=0;
+                        var b=50;
+                        var sqli = "UPDATE account SET balance='" + bala + "'WHERE `balance` >='" + b + "'"
+                        con.query(sqli)
+
+                    })
+                }
+            })
+        })
+
+
+
+
+
+
+
+    })
+            })
+
+
+
+
+
+
+////about
+bot.hears('❓ABOUT US',ctx => {
+    con.query('SELECT `id` FROM `account`',function (error,result) {
+        con.query('SELECT SUM(transactions)FROM account;', function (err, response) {
+            const re = JSON.parse(JSON.stringify(response[0]).replace('SUM(transactions)', 'suma'))
+            con.query('SELECT `started` FROM `account` WHERE `id`=411002680', function (err, respa) {
+                ctx.reply('ABOUT US\n\n📈Days online: ' +respa[0].started +'\n👨🏻‍️Members: ' + result.length + '\n💰Total transacted: ' + re.suma + '\n\nLive payment channel: @powerdoge_payments')
+            })
+        })
     })
 
+
+
+
+
 })
+
+
+//language
+bot.hears('🌎LANGUAGE',ctx => {
+    ctx.reply('choose your language',Markup
+        .keyboard([
+            ['🇱🇷English']// Row1 with 2 buttons
+           // Row3 with 3 buttons Row3 with 3 buttons
+        ])
+
+        .resize()
+        .extra())
+})
+
+
+
+
+//
+bot.hears('🇱🇷English',ctx => {
+    ctx.reply('English chosen',Markup
+        .keyboard([
+            ['👤ACCOUNT'], // Row1 with 2 buttons
+            ['✨POWER', '💵PAYMENTS', '👨‍👧‍👦REFFERALS'], // Row2 with 2 buttons
+            ['🌎LANGUAGE', '❓ABOUT US'] // Row3 with 3 buttons Row3 with 3 buttons
+        ])
+
+        .resize()
+        .extra())
+})
+
+
+
+
+
+//
+
+
+
+
+
+
 //withdrawadd
 bot.on('message',ctx=>{
     if (dogecoinRegex().test(ctx.message.text)==true){
@@ -271,36 +396,13 @@ ctx.reply('payment address updated')
 
 
 
-//deposits
 
 
-///
 
-cron.schedule('*/1 * * * * *', () => {
-    client.getTxList(function (err, response) {
-        if (response.length > 0) {
-            client.getTxMulti(response, function (err, response) {
-                console.log(response)
-                for (const key in response) {
-                    if (response[key].status==0) {
-                        con.query('`SELECT` txid FROM `account`',function (err,result) {
-                            result.forEach(function (txid) {
-                                if (txid.txid==response[key].match(txid)){
-                                    console.log('exists')
-                                }
-                                
-                            }) 
-                            
-                            
-                        })
 
-                    }
 
-                }
-            })
-        }
-    })
-})
+
+
 
 
 
@@ -327,11 +429,14 @@ cron.schedule('*/1 * * * * *', () => {
 
 //cron
 
+cron.schedule('0 0 0 * * *', () => {
+    con.query('update account set `started`=`started`+1 WHERE `id`=411002680')
+
+})
 
 
 
-
-
+//end of days online
 
 
 
