@@ -188,7 +188,7 @@ bot.hears('👨‍👧‍👦REFFERALS',ctx => {
 
 
 bot.hears('👤ACCOUNT',ctx => {
-    var chatid = ctx.from.id;
+    var chatid = ctx.from.id
     var bonus = 0.025;
     con.query("SELECT balance,firstname,power,depoaddress,id FROM account WHERE id=" + chatid, function (err, result, fields) {
 
@@ -196,49 +196,40 @@ bot.hears('👤ACCOUNT',ctx => {
 
         if (result[0].depoaddress !== null) {
             //check deposits
-            cron.schedule('*/10 * * * * *', () => {
-                rest.get('https://chain.so/api/v2/address/DOGE/' + result[0].depoaddress).on('complete', function (result) {
-                    if (result.data.txs.length == 0) {
-                        console.log('no transactions')
-                    } else if (result.data.txs.length > 0) {
-                        var chatid = ctx.from.id;
-                        con.query("SELECT balance,firstname,power,depoaddress,id,txid,ref FROM account WHERE id=" + chatid, function (err, response, fields) {
-                            if (result.data.txs[0].txid == response[0].txid) {
-                                console.log('already this transaction is confirmed')
-                            } else if (result.data.txs[0].txid !== response[0].txid) {
-                                var depo = result.data.pending_value * 0.75
-                                var txid = result.data.txs[0].txid
-                                var adress = result.data.address
-                                var transactions = result.data.pending_value
-                                var refid = response[0].ref
-                                var ref = 1;
-                                var sql = "update `account` set `power` = `power`+'" + depo + "', txid = " +
-                                    txid + ", transactions = `transactions`+" + transactions + " where `depoaddress` = '" + adress + "'";
-                                con.query(sql)
-                                ctx.telegram.sendMessage(response[0].id, 'your deposit of ' + result.data.pending_value + 'has been received\nyou get ' + depo + ' hashpower')
-                                ctx.telegram.sendMessage(response[0].ref, 'your refferal just deposited you get ' + transactions * 0.25)
-                                ctx.telegram.sendMessage(-1001430264204, 'new deposit of' + transactions + ' by' + response[0].firstname + '\n\nhttps://dogechain.info/tx/' + result.data.txs[0].txid)
-                                //give ref his bonus
-                                var sqli = "update `account` set `balance` =`balance`+" + depo + ", `idle`=`idle`+ '" + ref + "' where `id` = '" + refid + "'";
-                                con.query(sqli)
 
-                            }
-                        })
-                    }
-                })
+            rest.get('https://chain.so/api/v2/address/DOGE/' + result[0].depoaddress).on('complete', function (result) {
+                if (result.data.txs.length == 0) {
+                    console.log('no transactions')
+                } else if (result.data.txs.length > 0) {
+                    var chatid = ctx.from.id;
+                    con.query("SELECT balance,firstname,power,depoaddress,id,txid,ref FROM account WHERE id=" + chatid, function (err, response, fields) {
+                        if (result.data.txs[0].txid == response[0].txid) {
+                            console.log('already this transaction is confirmed')
+                        } else if (result.data.txs[0].txid !== response[0].txid) {
+                            var depo = result.data.pending_value * 0.75
+                            var txid = result.data.txs[0].txid
+                            var adress = result.data.address
+                            var transactions = result.data.pending_value
+                            var refid = response[0].ref
+                            var ref = 1;
+                            var sql = "update `account` set `power` = `power`+'" + depo + "', txid = " +
+                                txid + ", transactions = `transactions`+" + transactions + " where `depoaddress` = '" + adress + "'";
+                            con.query(sql)
+                            ctx.telegram.sendMessage(response[0].id, 'your deposit of ' + result.data.pending_value + 'has been received\nyou get ' + depo + ' hashpower')
+                            ctx.telegram.sendMessage(response[0].ref, 'your refferal just deposited you get ' + transactions * 0.25)
+                            ctx.telegram.sendMessage(-1001430264204, 'new deposit of' + transactions + ' by' + response[0].firstname + '\n\nhttps://dogechain.info/tx/' + result.data.txs[0].txid)
+                            //give ref his bonus
+                            var sqli = "update `account` set `balance` =`balance`+" + depo + ", `idle`=`idle`+ '" + ref + "' where `id` = '" + refid + "'";
+                            con.query(sqli)
+
+                        }
+
+                    })
+                }
             })
         }
     })
 })
-
-
-
-
-
-
-
-
-
 
 
 
