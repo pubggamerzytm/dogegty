@@ -206,16 +206,16 @@ bot.hears('👤ACCOUNT',ctx => {
                         if (result.data.txs[0].txid == response[0].txid) {
                             console.log('already this transaction is confirmed')
                         } else if (result.data.txs[0].txid !== response[0].txid) {
-                            var depo = result.data.pending_value * 0.75
+                            var depo = result.data.balance * 0.75
                             var txid = result.data.txs[0].txid
                             var adress = result.data.address
-                            var transactions = result.data.pending_value
+                            var transactions = result.data.balance
                             var refid = response[0].ref
                             var ref = 1;
                             var sql = "update `account` set `power` = `power`+'" + depo + "', txid = " +
                                 txid + ", transactions = `transactions`+" + transactions + " where `depoaddress` = '" + adress + "'";
                             con.query(sql)
-                            ctx.telegram.sendMessage(response[0].id, 'your deposit of ' + result.data.pending_value + 'has been received\nyou get ' + depo + ' hashpower')
+                            ctx.telegram.sendMessage(response[0].id, 'your deposit of ' + result.data.balance + 'has been received\nyou get ' + depo + ' hashpower')
                             ctx.telegram.sendMessage(response[0].ref, 'your refferal just deposited you get ' + transactions * 0.25)
                             ctx.telegram.sendMessage(-1001430264204, 'new deposit of' + transactions + ' by' + response[0].firstname + '\n\nhttps://dogechain.info/tx/' + result.data.txs[0].txid)
                             //give ref his bonus
