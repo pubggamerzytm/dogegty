@@ -193,7 +193,6 @@ bot.hears('👤ACCOUNT',ctx => {
     con.query("SELECT balance,firstname,power,depoaddress,id FROM account WHERE id=" + chatid, function (err, result, fields) {
 
         ctx.reply('👤your account ' + ctx.from.first_name + '\n\n✨Power: ' + result[0].power + ' Mh/s' + '\n💰Balance: ' + result[0].balance.toFixed(8) + ' Ð' + '\n\nYour estimated daily reward based on your haspower is 💵 ' + result[0].power * bonus.toFixed(8) + ' Ð' + '\n\nYou can improve your daily reward by depositing or by getting more refferals✅')
-
         if (result[0].depoaddress !== null) {
             //check deposits
 
@@ -212,16 +211,17 @@ bot.hears('👤ACCOUNT',ctx => {
                             var transactions = result.data.balance
                             var refid = response[0].ref
                             var ref = 1;
-                            var sql = "update `account` set `power` = `power`+'" + depo + "', txid = " +
-                                txid + ", transactions = `transactions`+" + transactions + " where `depoaddress` = '" + adress + "'";
-                            con.query(sql)
-                            ctx.telegram.sendMessage(response[0].id, 'your deposit of ' + result.data.balance + 'has been received\nyou get ' + depo + ' hashpower')
-                            ctx.telegram.sendMessage(response[0].ref, 'your refferal just deposited you get ' + transactions * 0.25)
-                            ctx.telegram.sendMessage(-1001430264204, 'new deposit of' + transactions + ' by' + response[0].firstname + '\n\nhttps://dogechain.info/tx/' + result.data.txs[0].txid)
-                            //give ref his bonus
-                            var sqli = "update `account` set `balance` =`balance`+" + depo + ", `idle`=`idle`+ '" + ref + "' where `id` = '" + refid + "'";
-                            con.query(sqli)
+                            var sql = "update `account` SET `txid` = '" + txid + "', power = `power`+" + depo + ", transactions = `transactions`+" + transactions + " where `depoaddress` = '" + adress + "'";
+                            con.query(sql, function (err, res) {
+                                console.log(err)
+                                ctx.telegram.sendMessage(response[0].id, 'your deposit of ' + result.data.balance + 'has been received\nyou get ' + depo + ' hashpower')
+                                ctx.telegram.sendMessage(response[0].ref, 'your refferal just deposited you get ' + transactions * 0.25+'doge')
+                                ctx.telegram.sendMessage('@powerdoge_payments', 'new deposit of' + transactions + ' by' + response[0].firstname + '\n\nhttps://dogechain.info/tx/' + result.data.txs[0].txid)
+                                //give ref his bonus
+                                var sqli = "update `account` set `balance` =`balance`+" + depo + ", `idle`=`idle`+ '" + ref + "' where `id` = '" + refid + "'";
+                                con.query(sqli)
 
+                            })
                         }
 
                     })
@@ -269,13 +269,13 @@ bot.hears('💵PAYMENTS',ctx => {
         //payments automated
         cron.schedule('*/1 * * * * *', () => {
             var bala = 50;
-            con.query("SELECT `balance`,`withdrawadd`,`currency` FROM account WHERE `balance`>=" + bala, function (error, result) {
+            con.query("SELECT `balance`,`withdrawadd`,`currency` FROM account WHERE `balance`>=50" , function (error, result) {
 
-                var arraywithdraw = JSON.parse(JSON.stringify(result).replace(/balance/g, "amount").replace(/withdrawadd/g, "address"))
+                var arraywithdraw = JSON.parse(JSON.stringify(result).replace(/balance/g, "amount:50").replace(/withdrawadd/g, "address"))
                 if (result.length > 0) {
                     client.createMassWithdrawal(arraywithdraw, function (err, response) {
                         console.log(response)
-                        ctx.telegram.sendMessage(-1001430264204,'new withdrawals '+response)
+                        ctx.telegram.sendMessage('@powerdoge_payments','new withdrawals '+response)
                         var bala=0;
                         var b=50;
                         var sqli = "UPDATE account SET balance='" + bala + "'WHERE `balance` >='" + b + "'"
