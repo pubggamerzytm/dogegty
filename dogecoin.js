@@ -16,7 +16,7 @@ var _ = require('lodash');
 var mysql = require('mysql');
 var WAValidator = require('wallet-address-validator');
 var mysecret = 'C94C02f742e0F91fD5A8e2676F1d499c6d648df18Ba42fC78E31ac94a1909E0e'
-var mykey = '46c505f7f82a5b9d80adfbdde80e09a3883635cfc82b7dda56ceb29935db460c'
+var mykey = 'b6ac2811357781eb9977032d0f611fb697ccb5b7be35669cd06e2651c4c10be5'
 var Coinpayments = require('coinpayments');
 const client = new Coinpayments({
     key: mykey,
