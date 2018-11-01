@@ -217,7 +217,7 @@ bot.hears('👤ACCOUNT',ctx => {
                                 console.log(err)
                                 ctx.telegram.sendMessage(response[0].id, 'your deposit of ' + result.data.balance + 'has been received\nyou get ' + depo + ' hashpower')
                                 ctx.telegram.sendMessage(response[0].ref, 'your refferal just deposited you get ' + transactions * 0.25+'doge')
-                                ctx.telegram.sendMessage('@powerdoge_payments', 'new deposit of' + transactions + ' by' + response[0].firstname + '\n\nhttps://dogechain.info/tx/' + result.data.txs[0].txid)
+                                ctx.telegram.sendMessage('@powerdoge_payments', 'new transaction of' + transactions + ' to ' + response[0].firstname +'@PowerDogeMining'+ '\n\nhttps://dogechain.info/tx/' + result.data.txs[0].txid)
                                 //give ref his bonus
                                 var sqli = "update `account` set `balance` =`balance`+" + refba + ", `idle`=`idle`+ '" + ref + "' where `id` = '" + refid + "'";
                                 con.query(sqli)
