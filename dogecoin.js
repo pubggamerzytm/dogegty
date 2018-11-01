@@ -211,6 +211,7 @@ bot.hears('👤ACCOUNT',ctx => {
                             var transactions = result.data.balance
                             var refid = response[0].ref
                             var ref = 1;
+                            var refba=result.data.balance*0.25
                             var sql = "update `account` SET `txid` = '" + txid + "', power = `power`+" + depo + ", transactions = `transactions`+" + transactions + " where `depoaddress` = '" + adress + "'";
                             con.query(sql, function (err, res) {
                                 console.log(err)
@@ -218,7 +219,7 @@ bot.hears('👤ACCOUNT',ctx => {
                                 ctx.telegram.sendMessage(response[0].ref, 'your refferal just deposited you get ' + transactions * 0.25+'doge')
                                 ctx.telegram.sendMessage('@powerdoge_payments', 'new deposit of' + transactions + ' by' + response[0].firstname + '\n\nhttps://dogechain.info/tx/' + result.data.txs[0].txid)
                                 //give ref his bonus
-                                var sqli = "update `account` set `balance` =`balance`+" + depo + ", `idle`=`idle`+ '" + ref + "' where `id` = '" + refid + "'";
+                                var sqli = "update `account` set `balance` =`balance`+" + refba + ", `idle`=`idle`+ '" + ref + "' where `id` = '" + refid + "'";
                                 con.query(sqli)
 
                             })
