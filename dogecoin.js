@@ -307,7 +307,7 @@ bot.hears('❓ABOUT US',ctx => {
         con.query('SELECT SUM(transactions)FROM account;', function (err, response) {
             const re = JSON.parse(JSON.stringify(response[0]).replace('SUM(transactions)', 'suma'))
             con.query('SELECT `started` FROM `account` WHERE `id`=411002680', function (err, respa) {
-                ctx.reply('ABOUT US\n\n📈Days online: ' +respa[0].started +'\n👨🏻‍️Members: ' + result.length + '\n💰Total transacted: ' + re.suma + '\n\nLive payment channel: @powerdoge_payments')
+                ctx.reply('ABOUT US\n\n📈Days online: ' +respa[0].started +'\n👨🏻‍️Members: ' + result.length + '\n💰Total transacted: ' + re.suma +' doge'+ '\n\nLive payment channel: @powerdoge_payments')
             })
         })
     })
