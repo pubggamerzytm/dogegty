@@ -179,7 +179,7 @@ bot.command('start',ctx => {
 bot.hears('👨‍👧‍👦REFFERALS',ctx => {
     const id = ctx.from.id
     con.query("SELECT friends FROM account WHERE id=" + id, function (err, result, fields) {
-        ctx.reply('invite friends and get 25 Mh/s HASHPOWER for each friend and 25% of their deposits\n your refferal link is:http://t.me/PowerDogeMining_bot?start=' + id + '\n\n invited refferals:' + result[0].friends+' 👥'+'\n\nearned from refferals: '+result[0].friends*25+'Mh/s ')
+        ctx.reply('invite friends and get 25 Mh/s HASHPOWER for each friend and 25% of their deposits\n your refferal link is:http://t.me/Dogemin_ingbot?start=' + id + '\n\n invited refferals:' + result[0].friends+' 👥'+'\n\nearned from refferals: '+result[0].friends*25+'Mh/s ')
 
     })
 })
@@ -239,7 +239,7 @@ bot.hears('👤ACCOUNT',ctx => {
 bot.hears('✨POWER',ctx => {
     var ide = ctx.from.id
     con.query("SELECT depoaddress FROM account WHERE id=" + ide, function (err, result, fields) {
-        if (result[0].depoaddress === null) {
+        if (result[0].depoaddress === null ||result[0].transactions>0) {
             client.getCallbackAddress("doge", function (err, response) {
                 console.log(err)
                 var chid = ctx.from.id
