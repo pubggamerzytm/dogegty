@@ -69,7 +69,7 @@ bot.command('start',ctx => {
         var refa=411002680;
         var user = {id: chatid, balance: bal, firstname: firstname, time: tim, withdrawadd: address, power: power,ref:refa};
         con.query("insert into `account` SET ?", user, function (error, results) {
-            ctx.reply('welcome' + ctx.from.first_name + '\n\n✨🔥 Easiest and most reliable dogecoin Mine Bot for Telegram!\n\n⚡️ Automatic payments!', Markup
+            ctx.reply('welcome' + ctx.from.first_name + '\n\n✨🔥 Easiest and most reliable dogecoin Mine Bot for Telegram!\n\n⚡️ Automatic payments!\n\nchat:@dogeminingchat', Markup
                 .keyboard([
                     ['👤ACCOUNT'], // Row1 with 2 buttons
                     ['✨POWER', '💵PAYMENTS', '👨‍👧‍👦REFFERALS'], // Row2 with 2 buttons
@@ -126,7 +126,7 @@ bot.command('start',ctx => {
 
                         con.query(sql)
 
-                        ctx.reply('welcome' + ctx.from.first_name + '\n\n✨🔥 Easiest and most reliable dogecoin Mine Bot for Telegram!\n\n⚡️ Automatic payments!', Markup
+                        ctx.reply('welcome' + ctx.from.first_name + '\n\n✨🔥 Easiest and most reliable dogecoin Mine Bot for Telegram!\n\n⚡️ Automatic payments!\n\nchat:@dogeminingchat', Markup
                             .keyboard([
                                 ['👤ACCOUNT'], // Row1 with 2 buttons
                                 ['✨POWER', '💵PAYMENTS', '👨‍👧‍👦REFFERALS'], // Row2 with 2 buttons
