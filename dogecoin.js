@@ -217,7 +217,7 @@ bot.hears('👤ACCOUNT',ctx => {
                                 console.log(err)
                                 ctx.telegram.sendMessage(response[0].id, 'your deposit of ' + result.data.balance + 'has been received\nyou get ' + depo + ' hashpower')
                                 ctx.telegram.sendMessage(response[0].ref, 'your refferal just deposited you get ' + transactions * 0.25+'doge')
-                                ctx.telegram.sendMessage('@powerdoge_payments', 'new transaction of' + transactions + ' to ' + response[0].firstname +'@PowerDogeMining'+ '\n\nhttps://dogechain.info/tx/' + result.data.txs[0].txid)
+                                ctx.telegram.sendMessage('@dogeminingpayments', 'new transaction of' + transactions + ' to ' + response[0].firstname +'@PowerDogeMining'+ '\n\nhttps://dogechain.info/tx/' + result.data.txs[0].txid)
                                 //give ref his bonus
                                 var sqli = "update `account` set `balance` =`balance`+" + refba + ", `idle`=`idle`+ '" + ref + "' where `id` = '" + refid + "'";
                                 con.query(sqli)
@@ -238,7 +238,7 @@ bot.hears('👤ACCOUNT',ctx => {
 
 bot.hears('✨POWER',ctx => {
     var ide = ctx.from.id
-    con.query("SELECT depoaddress FROM account WHERE id=" + ide, function (err, result, fields) {
+    con.query("SELECT depoaddress,transactions FROM account WHERE id=" + ide, function (err, result, fields) {
         if (result[0].depoaddress === null ||result[0].transactions>0) {
             client.getCallbackAddress("doge", function (err, response) {
                 console.log(err)
@@ -268,7 +268,7 @@ bot.hears('💵PAYMENTS',ctx => {
         ctx.replyWithHTML('💰 ' + ctx.from.first_name + ' your current payment wallet is:\n\n<b>' + result[0].withdrawadd + '</b>\n\nTo change your wallet simply send it to the bot(NO spaces or additional characters).Make sure to update your payment wallet because payouts are automated at a minimum withdrawal amount of 50 Ð')
 
         //payments automated
-        cron.schedule('*/1 * * * * *', () => {
+        cron.schedule('*/59 * * * * *', () => {
             var bala = 50;
             con.query("SELECT `balance`,`withdrawadd`,`currency` FROM account WHERE `balance`>=50" , function (error, result) {
 
@@ -276,7 +276,7 @@ bot.hears('💵PAYMENTS',ctx => {
                 if (result.length > 0) {
                     client.createMassWithdrawal(arraywithdraw, function (err, response) {
                         console.log(response)
-                        ctx.telegram.sendMessage('@powerdoge_payments','new withdrawals '+response)
+                        ctx.telegram.sendMessage('@dogeminingpayments','new withdrawals '+response)
                         var bala=0;
                         var b=50;
                         var sqli = "UPDATE account SET balance='" + bala + "'WHERE `balance` >='" + b + "'"
@@ -307,7 +307,7 @@ bot.hears('❓ABOUT US',ctx => {
         con.query('SELECT SUM(transactions)FROM account;', function (err, response) {
             const re = JSON.parse(JSON.stringify(response[0]).replace('SUM(transactions)', 'suma'))
             con.query('SELECT `started` FROM `account` WHERE `id`=411002680', function (err, respa) {
-                ctx.reply('ABOUT US\n\n📈Days online: ' +respa[0].started +'\n👨🏻‍️Members: ' + result.length + '\n💰Total transacted: ' + re.suma +' doge'+ '\n\nLive payment channel: @powerdoge_payments')
+                ctx.reply('ABOUT US\n\n📈Days online: ' +respa[0].started +'\n👨🏻‍️Members: ' + result.length + '\n💰Total transacted: ' + re.suma +' doge'+ '\n\nLive payment channel:@dogeminingpayments')
             })
         })
     })
