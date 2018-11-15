@@ -15,11 +15,11 @@
     "telegraf": "^3.24.0",
     "mysql": "^2.16.0",
     "coinbase": "^2.0.8",
-    "wallet-address-validator":"^0.2.1",
+    "wallet-address-validator": "^0.2.1",
     "coinpayments": "^1.1.8",
     "node-cron": "^2.0.3",
     "sochain": "^1.0.1",
-    "dogecoin-regex":"^1.0.3",
+    "dogecoin-regex": "^1.0.3",
     "lodash": "^4.17.11",
     "restler": "^3.4.0",
     "async": "^2.6.1"

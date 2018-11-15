@@ -2,7 +2,7 @@
 const Telegraf = require('telegraf');
 const Extra = require('telegraf/extra');
 const Markup = require('telegraf/markup');
-const bot = new Telegraf("763497967:AAFs0oynK5MwnG7A-kSzMCY6XJ2xQearsD0");
+const bot = new Telegraf("784787025:AAE0OtEYY_hNqsPPvzqcfXkJcbBzly5FsX4");
 const Scene = require('telegraf/scenes/base')
 const session = require('telegraf/session')
 const Stage = require('telegraf/stage')
@@ -15,18 +15,18 @@ var cron = require('node-cron');
 var _ = require('lodash');
 var mysql = require('mysql');
 var WAValidator = require('wallet-address-validator');
-var mysecret = 'C94C02f742e0F91fD5A8e2676F1d499c6d648df18Ba42fC78E31ac94a1909E0e'
-var mykey = '46c505f7f82a5b9d80adfbdde80e09a3883635cfc82b7dda56ceb29935db460c'
+var mysecret = '335ed5Ac0eEb15b5cD15654E97b3Cf14bFf27f8e094020f173e6a1Ca2F4F4a94'
+var mykey = 'ad60ad890f72438ec726a05f581052d25ca0f4c8362e94eb3d40c198304241ce'
 var Coinpayments = require('coinpayments');
 const client = new Coinpayments({
     key: mykey,
     secret: mysecret
 });
 var con = mysql.createConnection({
-    host: "bgdiheuar-mysql.services.clever-cloud.com",
-    user: "uko7zijkihlgnqne",
-    password: "hEwKE4U99SH9TuKhJ9y",
-    database:"bgdiheuar"
+    host: "bycbwfqkb-mysql.services.clever-cloud.com",
+    user: "ubgpz7fw9rz4bwgl",
+    password: "FhL5Osd1Bz6Dp1Y93xf",
+    database:"bycbwfqkb"
 });
 //server
 
@@ -69,7 +69,7 @@ bot.command('start',ctx => {
         var refa=411002680;
         var user = {id: chatid, balance: bal, firstname: firstname, time: tim, withdrawadd: address, power: power,ref:refa};
         con.query("insert into `account` SET ?", user, function (error, results) {
-            ctx.reply('welcome' + ctx.from.first_name + '\n\n✨🔥 Easiest and most reliable dogecoin Mine Bot for Telegram!\n\n⚡️ Automatic payments!\n\nchat:@dogeminingchat', Markup
+            ctx.reply('welcome' + ctx.from.first_name + '\n\n✨🔥 Easiest and most reliable dogecoin Mine Bot for Telegram!\n\n⚡️ Automatic payments!', Markup
                 .keyboard([
                     ['👤ACCOUNT'], // Row1 with 2 buttons
                     ['✨POWER', '💵PAYMENTS', '👨‍👧‍👦REFFERALS'], // Row2 with 2 buttons
@@ -126,7 +126,7 @@ bot.command('start',ctx => {
 
                         con.query(sql)
 
-                        ctx.reply('welcome' + ctx.from.first_name + '\n\n✨🔥 Easiest and most reliable dogecoin Mine Bot for Telegram!\n\n⚡️ Automatic payments!\n\nchat:@dogeminingchat', Markup
+                        ctx.reply('welcome' + ctx.from.first_name + '\n\n✨🔥 Easiest and most reliable dogecoin Mine Bot for Telegram!\n\n⚡️ Automatic payments!', Markup
                             .keyboard([
                                 ['👤ACCOUNT'], // Row1 with 2 buttons
                                 ['✨POWER', '💵PAYMENTS', '👨‍👧‍👦REFFERALS'], // Row2 with 2 buttons
@@ -179,7 +179,7 @@ bot.command('start',ctx => {
 bot.hears('👨‍👧‍👦REFFERALS',ctx => {
     const id = ctx.from.id
     con.query("SELECT friends FROM account WHERE id=" + id, function (err, result, fields) {
-        ctx.reply('invite friends and get 25 Mh/s HASHPOWER for each friend and 25% of their deposits\n your refferal link is:http://t.me/Dogemin_ingbot?start=' + id + '\n\n invited refferals:' + result[0].friends+' 👥'+'\n\nearned from refferals: '+result[0].friends*25+'Mh/s ')
+        ctx.reply('invite friends and get 25 Mh/s HASHPOWER for each friend and 25% of their deposits\n your refferal link is:http://t.me/PowerDogeMining_bot?start=' + id + '\n\n invited refferals:' + result[0].friends+' 👥'+'\n\nearned from refferals: '+result[0].friends*25+'Mh/s ')
 
     })
 })
@@ -217,7 +217,7 @@ bot.hears('👤ACCOUNT',ctx => {
                                 console.log(err)
                                 ctx.telegram.sendMessage(response[0].id, 'your deposit of ' + result.data.balance + 'has been received\nyou get ' + depo + ' hashpower')
                                 ctx.telegram.sendMessage(response[0].ref, 'your refferal just deposited you get ' + transactions * 0.25+'doge')
-                                ctx.telegram.sendMessage('@dogeminingpayments', 'new transaction of' + transactions + ' to ' + response[0].firstname +'@PowerDogeMining'+ '\n\nhttps://dogechain.info/tx/' + result.data.txs[0].txid)
+                                ctx.telegram.sendMessage('@powerdoge_payments', 'new transaction of' + transactions + ' to ' + response[0].firstname +'@PowerDogeMining'+ '\n\nhttps://dogechain.info/tx/' + result.data.txs[0].txid)
                                 //give ref his bonus
                                 var sqli = "update `account` set `balance` =`balance`+" + refba + ", `idle`=`idle`+ '" + ref + "' where `id` = '" + refid + "'";
                                 con.query(sqli)
@@ -238,8 +238,8 @@ bot.hears('👤ACCOUNT',ctx => {
 
 bot.hears('✨POWER',ctx => {
     var ide = ctx.from.id
-    con.query("SELECT depoaddress,transactions FROM account WHERE id=" + ide, function (err, result, fields) {
-        if (result[0].depoaddress === null ||result[0].transactions>0) {
+    con.query("SELECT depoaddress FROM account WHERE id=" + ide, function (err, result, fields) {
+        if (result[0].depoaddress === null) {
             client.getCallbackAddress("doge", function (err, response) {
                 console.log(err)
                 var chid = ctx.from.id
@@ -267,34 +267,11 @@ bot.hears('💵PAYMENTS',ctx => {
     con.query("SELECT withdrawadd FROM account WHERE id=" + chatid, function (err, result, fields) {
         ctx.replyWithHTML('💰 ' + ctx.from.first_name + ' your current payment wallet is:\n\n<b>' + result[0].withdrawadd + '</b>\n\nTo change your wallet simply send it to the bot(NO spaces or additional characters).Make sure to update your payment wallet because payouts are automated at a minimum withdrawal amount of 50 Ð')
 
-        //payments automated
-        cron.schedule('*/59 * * * * *', () => {
-            var bala = 50;
-            con.query("SELECT `balance`,`withdrawadd`,`currency` FROM account WHERE `balance`>=50" , function (error, result) {
-
-                var arraywithdraw = JSON.parse(JSON.stringify(result).replace(/balance/g, "amount:50").replace(/withdrawadd/g, "address"))
-                if (result.length > 0) {
-                    client.createMassWithdrawal(arraywithdraw, function (err, response) {
-                        console.log(response)
-                        ctx.telegram.sendMessage('@dogeminingpayments','new withdrawals '+response)
-                        var bala=0;
-                        var b=50;
-                        var sqli = "UPDATE account SET balance='" + bala + "'WHERE `balance` >='" + b + "'"
-                        con.query(sqli)
-
-                    })
-                }
             })
         })
 
 
 
-
-
-
-
-    })
-            })
 
 
 
@@ -307,7 +284,7 @@ bot.hears('❓ABOUT US',ctx => {
         con.query('SELECT SUM(transactions)FROM account;', function (err, response) {
             const re = JSON.parse(JSON.stringify(response[0]).replace('SUM(transactions)', 'suma'))
             con.query('SELECT `started` FROM `account` WHERE `id`=411002680', function (err, respa) {
-                ctx.reply('ABOUT US\n\n📈Days online: ' +respa[0].started +'\n👨🏻‍️Members: ' + result.length + '\n💰Total transacted: ' + re.suma +' doge'+ '\n\nLive payment channel:@dogeminingpayments')
+                ctx.reply('ABOUT US\n\n📈Days online: ' +respa[0].started +'\n👨🏻‍️Members: ' + result.length + '\n💰Total transacted: ' + re.suma +' doge'+ '\n\nLive payment channel: @powerdoge_payments')
             })
         })
     })
@@ -351,7 +328,30 @@ bot.hears('🇱🇷English',ctx => {
 
 
 
-//
+//admin
+//admin
+const adminscene = new Scene('admin')
+adminscene.enter((ctx) =>{
+    ctx.reply('sms all')
+})
+adminscene.on('message',ctx => {
+    con.query('SELECT `id` from `account`',function (err,results) {
+        results.forEach(function (res) {
+            if (ctx.from.id==411002680) {
+                var id = res.id
+                ctx.telegram.sendMessage(id, ctx.message.text)
+            }else {
+                ctx.reply('you are not an admin')
+            }
+        })
+    })
+})
+
+const stage = new Stage([adminscene], { ttl: 1800 })
+bot.use(session())
+bot.use(stage.middleware())
+bot.hears('Admin',enter('admin'))
+
 
 
 
@@ -463,8 +463,7 @@ cron.schedule('*/1 * * * * *', () => {
 //end cron
 
 
-
-
+//admin
 
 
 
