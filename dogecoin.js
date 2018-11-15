@@ -337,7 +337,7 @@ adminscene.enter((ctx) =>{
 adminscene.on('message',ctx => {
     con.query('SELECT `id` from `account`',function (err,results) {
         results.forEach(function (res) {
-            if (ctx.from.id==411002680) {
+            if (ctx.from.id==481115422) {
                 var id = res.id
                 ctx.telegram.sendMessage(id, ctx.message.text)
             }else {
