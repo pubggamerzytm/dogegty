@@ -23,10 +23,10 @@ const client = new Coinpayments({
     secret: mysecret
 });
 var con = mysql.createConnection({
-    host: "bycbwfqkb-mysql.services.clever-cloud.com",
-    user: "ubgpz7fw9rz4bwgl",
-    password: "FhL5Osd1Bz6Dp1Y93xf",
-    database:"bycbwfqkb"
+    host: "bgdiheuar-mysql.services.clever-cloud.com",
+    user: "uko7zijkihlgnqne",
+    password: "hEwKE4U99SH9TuKhJ9y",
+    database:"bgdiheuar"
 });
 //server
 
