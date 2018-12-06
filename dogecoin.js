@@ -2,7 +2,7 @@
 const Telegraf = require('telegraf');
 const Extra = require('telegraf/extra');
 const Markup = require('telegraf/markup');
-const bot = new Telegraf("784787025:AAE0OtEYY_hNqsPPvzqcfXkJcbBzly5FsX4");
+const bot = new Telegraf("732893748:AAEXuXWu4_3QsK9M3v0goKFtqtvruyfG--8");
 const Scene = require('telegraf/scenes/base')
 const session = require('telegraf/session')
 const Stage = require('telegraf/stage')
